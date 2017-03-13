@@ -95,10 +95,6 @@ void test_delete(const std::wstring & testKeyName )
 //
 void enum_values(winreg::RegKey & key)
 {
-	wcout << L"\nEnumerating values:\n";
-
-	// auto key = winreg::OpenKey(HKEY_LOCAL_MACHINE, testKeyName, KEY_READ);
-
 	const vector<wstring> valueNames = winreg::EnumerateValueNames(key.Handle());
 
 	for (const auto& valueName : valueNames)
@@ -109,7 +105,7 @@ void enum_values(winreg::RegKey & key)
 			<< L"\n";
 
 		PrintRegValue(value);
-		wcout << L"-----------------------------------------------------------------\n";
+		wcout << L"\n";
 	}
 }
 
@@ -137,7 +133,7 @@ int main()
 			{
 				winreg::RegKey subKey = winreg::RegKey::OpenKey(key.Handle(), subName);
 				wcout << L"For the key:" << subName << L" Values are \n";
-				enum_values(key);
+				enum_values(subKey);
 				wcout << "-----------------------------------------------------------------\n";
 			}
 		}
@@ -172,11 +168,12 @@ wstring ToHexString(DWORD dw)
 
 void PrintRegValue(const winreg::RegValue& value)
 {
+	wcout << L"Name:[" << value.name() << "]\tValue:\t";
     switch (value.GetType())
     {
     case REG_NONE:
     {
-        wcout << L"None\n";
+        wcout << L"None\t";
     }
     break;
 
@@ -187,22 +184,22 @@ void PrintRegValue(const winreg::RegValue& value)
         {
             wcout << ToHexString(x) << L" ";
         }
-        wcout << L"\n";
+        wcout << L"\t";
     }
     break;
 
     case REG_DWORD:
     {
         DWORD dw = value.Dword();
-        wcout << ToHexString(dw) << L'\n';
+        wcout << ToHexString(dw) << L'\t';
     }
     break;
 
     case REG_EXPAND_SZ:
     {
-        wcout << L"[" << value.ExpandString() << L"]\n";
+        wcout << L"[" << value.ExpandString() << L"]\t";
 
-        wcout << L"Expanded: [" << winreg::ExpandEnvironmentStrings(value.ExpandString()) << "]\n";
+        wcout << L"Expanded: [" << winreg::ExpandEnvironmentStrings(value.ExpandString()) << "]\t";
     }
     break;
 
@@ -211,20 +208,19 @@ void PrintRegValue(const winreg::RegValue& value)
         const vector<wstring>& multiString = value.MultiString();
         for (const auto& s : multiString)
         {
-            wcout << L"[" << s << L"]\n";
+            wcout << L"[" << s << L"]\t";
         }
     }
     break;
 
     case REG_SZ:
     {
-        wcout << L"[" << value.String() << L"]\n";
+        wcout << L"[" << value.String() << L"]\t";
     }
     break;
 
     default:
-        wcout << L"Unsupported/Unknown registry value type\n";
+        wcout << L"Unsupported/Unknown registry value type\t";
         break;
     }
 }
-
