@@ -24,7 +24,7 @@
     <None Include="..\..\.gitignore" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="winreg.h">
+    <ClInclude Include="wreg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
