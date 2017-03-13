@@ -6,7 +6,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "WinReg.hpp"   // WinReg public header
+#include "winreg.h"   // WinReg public header
 
 #include <Windows.h>
 

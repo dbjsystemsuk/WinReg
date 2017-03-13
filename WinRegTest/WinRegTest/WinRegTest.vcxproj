@@ -150,11 +150,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="WinReg.cpp" />
     <ClCompile Include="WinRegTest.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="WinReg.hpp" />
+    <ClInclude Include="winreg.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\.gitattributes" />
