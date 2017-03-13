@@ -65,7 +65,7 @@ inline DWORD SafeSizeToDwordCast(size_t size)
 // Reads a REG_DWORD value.
 winreg::RegValue ReadValueDwordInternal(HKEY hKey, const std::wstring& valueName)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
+    _ASSERTE(hKey != nullptr);
 
     DWORD valueData = 0;
     DWORD valueSize = sizeof(valueData);
@@ -78,11 +78,11 @@ winreg::RegValue ReadValueDwordInternal(HKEY hKey, const std::wstring& valueName
         reinterpret_cast<BYTE*>(&valueData),   // where data will be read
         &valueSize
     );
-    GD_WINREG_ASSERT(valueSize == sizeof(DWORD)); // we read a DWORD
+    _ASSERTE(valueSize == sizeof(DWORD)); // we read a DWORD
 
     if (result != ERROR_SUCCESS)
     {
-        throw winreg::RegException("RegQueryValueEx() failed in returning REG_DWORD value.", result);
+        throw winreg::RegException(L"RegQueryValueEx() failed in returning REG_DWORD value.", result);
     }
 
     winreg::RegValue value(REG_DWORD);
@@ -94,7 +94,7 @@ winreg::RegValue ReadValueDwordInternal(HKEY hKey, const std::wstring& valueName
 // Reads a REG_SZ value.
 winreg::RegValue ReadValueStringInternal(HKEY hKey, const std::wstring& valueName, DWORD valueSize)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
+    _ASSERTE(hKey != nullptr);
 
     // valueSize is in bytes, we need string length in wchar_ts
     const DWORD stringBufferLenInWchars = valueSize / sizeof(wchar_t);
@@ -115,7 +115,7 @@ winreg::RegValue ReadValueStringInternal(HKEY hKey, const std::wstring& valueNam
     );
     if (result != ERROR_SUCCESS)
     {
-        throw winreg::RegException("RegQueryValueEx() failed in returning REG_SZ value.", result);
+        throw winreg::RegException(L"RegQueryValueEx() failed in returning REG_SZ value.", result);
     }
 
     //
@@ -144,7 +144,7 @@ winreg::RegValue ReadValueStringInternal(HKEY hKey, const std::wstring& valueNam
 winreg::RegValue ReadValueExpandStringInternal(HKEY hKey, const std::wstring& valueName, DWORD valueSize)
 {
     // Almost copy-and-paste from ReadValueStringInternal()
-    GD_WINREG_ASSERT(hKey != nullptr);
+    _ASSERTE(hKey != nullptr);
 
     // valueSize is in bytes, we need string length in wchar_ts
     const DWORD stringBufferLenInWchars = valueSize / sizeof(wchar_t);
@@ -164,7 +164,7 @@ winreg::RegValue ReadValueExpandStringInternal(HKEY hKey, const std::wstring& va
     );
     if (result != ERROR_SUCCESS)
     {
-        throw winreg::RegException("RegQueryValueEx() failed in returning REG_EXPAND_SZ value.", 
+        throw winreg::RegException(L"RegQueryValueEx() failed in returning REG_EXPAND_SZ value.", 
             result);
     }
 
@@ -193,7 +193,7 @@ winreg::RegValue ReadValueExpandStringInternal(HKEY hKey, const std::wstring& va
 // Reads a REG_BINARY value.
 winreg::RegValue ReadValueBinaryInternal(HKEY hKey, const std::wstring& valueName, DWORD valueSize)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
+    _ASSERTE(hKey != nullptr);
 
     // Data to be read from the registry
     std::vector<BYTE> binaryData(valueSize);
@@ -209,7 +209,7 @@ winreg::RegValue ReadValueBinaryInternal(HKEY hKey, const std::wstring& valueNam
     );
     if (result != ERROR_SUCCESS)
     {
-        throw winreg::RegException("RegQueryValueEx() failed in returning REG_BINARY value.", result);
+        throw winreg::RegException(L"RegQueryValueEx() failed in returning REG_BINARY value.", result);
     }
 
     winreg::RegValue value(REG_BINARY);
@@ -221,7 +221,7 @@ winreg::RegValue ReadValueBinaryInternal(HKEY hKey, const std::wstring& valueNam
 // Reads a REG_MULTI_SZ value.
 winreg::RegValue ReadValueMultiStringInternal(HKEY hKey, const std::wstring& valueName, DWORD valueSize)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
+    _ASSERTE(hKey != nullptr);
 
     // Multi-string parsed into a vector of strings
     std::vector<std::wstring> multiStrings;
@@ -240,7 +240,7 @@ winreg::RegValue ReadValueMultiStringInternal(HKEY hKey, const std::wstring& val
     );
     if (result != ERROR_SUCCESS)
     {
-        throw winreg::RegException("RegQueryValueEx() failed in returning REG_MULTI_SZ value.", 
+        throw winreg::RegException(L"RegQueryValueEx() failed in returning REG_MULTI_SZ value.", 
             result);
     }
 
@@ -272,8 +272,8 @@ winreg::RegValue ReadValueMultiStringInternal(HKEY hKey, const std::wstring& val
 
 void WriteValueBinaryInternal(HKEY hKey, const std::wstring& valueName, const winreg::RegValue& value)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
-    GD_WINREG_ASSERT(value.GetType() == REG_BINARY);
+    _ASSERTE(hKey != nullptr);
+    _ASSERTE(value.GetType() == REG_BINARY);
 
     const std::vector<BYTE> & data = value.Binary();
     const DWORD dataSize = SafeSizeToDwordCast(data.size());
@@ -286,15 +286,15 @@ void WriteValueBinaryInternal(HKEY hKey, const std::wstring& valueName, const wi
         dataSize);
     if (result != ERROR_SUCCESS)
     {
-        throw winreg::RegException("RegSetValueEx() failed in writing REG_BINARY value.", result);
+        throw winreg::RegException(L"RegSetValueEx() failed in writing REG_BINARY value.", result);
     }
 }
 
 
 void WriteValueDwordInternal(HKEY hKey, const std::wstring& valueName, const winreg::RegValue& value)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
-    GD_WINREG_ASSERT(value.GetType() == REG_DWORD);
+    _ASSERTE(hKey != nullptr);
+    _ASSERTE(value.GetType() == REG_DWORD);
 
     const DWORD data = value.Dword();
     const DWORD dataSize = sizeof(data);
@@ -307,15 +307,15 @@ void WriteValueDwordInternal(HKEY hKey, const std::wstring& valueName, const win
         dataSize);
     if (result != ERROR_SUCCESS)
     {
-        throw winreg::RegException("RegSetValueEx() failed in writing REG_DWORD value.", result);
+        throw winreg::RegException(L"RegSetValueEx() failed in writing REG_DWORD value.", result);
     }
 }
 
 
 void WriteValueStringInternal(HKEY hKey, const std::wstring& valueName, const winreg::RegValue& value)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
-    GD_WINREG_ASSERT(value.GetType() == REG_SZ);
+    _ASSERTE(hKey != nullptr);
+    _ASSERTE(value.GetType() == REG_SZ);
 
     const std::wstring& str = value.String();
 
@@ -332,15 +332,15 @@ void WriteValueStringInternal(HKEY hKey, const std::wstring& valueName, const wi
         dataSize);
     if (result != ERROR_SUCCESS)
     {
-        throw winreg::RegException("RegSetValueEx() failed in writing REG_SZ value.", result);
+        throw winreg::RegException(L"RegSetValueEx() failed in writing REG_SZ value.", result);
     }
 }
 
 
 void WriteValueExpandStringInternal(HKEY hKey, const std::wstring& valueName, const winreg::RegValue& value)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
-    GD_WINREG_ASSERT(value.GetType() == REG_EXPAND_SZ);
+    _ASSERTE(hKey != nullptr);
+    _ASSERTE(value.GetType() == REG_EXPAND_SZ);
 
     const std::wstring & str = value.ExpandString();
 
@@ -357,15 +357,15 @@ void WriteValueExpandStringInternal(HKEY hKey, const std::wstring& valueName, co
         dataSize);
     if (result != ERROR_SUCCESS)
     {
-        throw winreg::RegException("RegSetValueEx() failed in writing REG_EXPAND_SZ value.", result);
+        throw winreg::RegException(L"RegSetValueEx() failed in writing REG_EXPAND_SZ value.", result);
     }
 }
 
 
 void WriteValueMultiStringInternal(HKEY hKey, const std::wstring& valueName, const winreg::RegValue& value)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
-    GD_WINREG_ASSERT(value.GetType() == REG_MULTI_SZ);
+    _ASSERTE(hKey != nullptr);
+    _ASSERTE(value.GetType() == REG_MULTI_SZ);
 
     const std::vector<std::wstring> & multiString = value.MultiString();
 
@@ -421,7 +421,7 @@ void WriteValueMultiStringInternal(HKEY hKey, const std::wstring& valueName, con
         dataSize);
     if (result != ERROR_SUCCESS)
     {
-        throw winreg::RegException("RegSetValueEx() failed in writing REG_MULTI_SZ value.", result);
+        throw winreg::RegException(L"RegSetValueEx() failed in writing REG_MULTI_SZ value.", result);
     }
 }
 
@@ -441,7 +441,7 @@ namespace winreg
 
 std::vector<std::wstring> EnumerateSubKeyNames(HKEY hKey)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
+    _ASSERTE(hKey != nullptr);
 
     // Get sub-keys count and max sub-key name length
     DWORD subkeyCount = 0;
@@ -457,7 +457,7 @@ std::vector<std::wstring> EnumerateSubKeyNames(HKEY hKey)
     );
     if (result != ERROR_SUCCESS)
     {
-        throw RegException("RegQueryInfoKey() failed while trying to get sub-keys info.", result);
+        throw RegException(L"RegQueryInfoKey() failed while trying to get sub-keys info.", result);
     }
 
     // Result of the function
@@ -479,7 +479,7 @@ std::vector<std::wstring> EnumerateSubKeyNames(HKEY hKey)
             nullptr, nullptr, nullptr, nullptr);
         if (result != ERROR_SUCCESS)
         {
-            throw RegException("RegEnumKeyEx() failed trying to get sub-key name.", result);
+            throw RegException(L"RegEnumKeyEx() failed trying to get sub-key name.", result);
         }
 
         // When the RegEnumKeyEx() function returns, subkeyNameBufferSize
@@ -493,7 +493,7 @@ std::vector<std::wstring> EnumerateSubKeyNames(HKEY hKey)
 
 RegKey OpenKey(HKEY hKey, const std::wstring& subKeyName, REGSAM accessRights)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
+    _ASSERTE(hKey != nullptr);
 
     HKEY hKeyResult = nullptr;
     LONG result = ::RegOpenKeyEx(
@@ -505,10 +505,15 @@ RegKey OpenKey(HKEY hKey, const std::wstring& subKeyName, REGSAM accessRights)
     );
     if (result != ERROR_SUCCESS)
     {
-        throw RegException("RegOpenKeyEx() failed trying opening a key.", result);
+        throw RegException(
+			L"RegOpenKeyEx() failed trying opening a key:{" + subKeyName + L"}", 
+			result
+		);
     }
 
-    return RegKey(hKeyResult);
+	_ASSERTE(hKey != NULL); // DBJ added
+
+	return RegKey(hKeyResult);
 }
 
 
@@ -517,7 +522,7 @@ RegKey CreateKey(HKEY hKey, const std::wstring& subKeyName,
     LPSECURITY_ATTRIBUTES securityAttributes,
     LPDWORD disposition)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
+    _ASSERTE(hKey != nullptr);
 
     HKEY hKeyResult = nullptr;
     LONG result = ::RegCreateKeyEx(
@@ -533,7 +538,7 @@ RegKey CreateKey(HKEY hKey, const std::wstring& subKeyName,
     );
     if (result != ERROR_SUCCESS)
     {
-        throw RegException("RegCreateKeyEx() failed.", result);
+        throw RegException(L"RegCreateKeyEx() failed.", result);
     }
 
     return RegKey(hKeyResult);
@@ -542,7 +547,7 @@ RegKey CreateKey(HKEY hKey, const std::wstring& subKeyName,
 
 std::vector<std::wstring> EnumerateValueNames(HKEY hKey)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
+    _ASSERTE(hKey != nullptr);
 
     // Get values count and max value name length
     DWORD valueCount = 0;
@@ -557,7 +562,7 @@ std::vector<std::wstring> EnumerateValueNames(HKEY hKey)
         nullptr, nullptr, nullptr);
     if (result != ERROR_SUCCESS)
     {
-        throw RegException("RegQueryInfoKey() failed while trying to get value info.", result);
+        throw RegException(L"RegQueryInfoKey() failed while trying to get value info.", result);
     }
 
     std::vector<std::wstring> valueNames;
@@ -583,7 +588,7 @@ std::vector<std::wstring> EnumerateValueNames(HKEY hKey)
         );
         if (result != ERROR_SUCCESS)
         {
-            throw RegException("RegEnumValue() failed to get value name.", result);
+            throw RegException(L"RegEnumValue() failed to get value name.", result);
         }
 
         // When the RegEnumValue() function returns, valueNameLength
@@ -597,7 +602,7 @@ std::vector<std::wstring> EnumerateValueNames(HKEY hKey)
 
 RegValue QueryValue(HKEY hKey, const std::wstring& valueName)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
+    _ASSERTE(hKey != nullptr);
 
     DWORD valueType = 0;
 
@@ -624,7 +629,7 @@ RegValue QueryValue(HKEY hKey, const std::wstring& valueName)
     );
     if (result != ERROR_SUCCESS)
     {
-        throw RegException("RegQueryValueEx() failed in returning value info.", result);
+        throw RegException(L"RegQueryValueEx() failed in returning value info.", result);
     }
 
     // Dispatch to internal helper function based on the value's type
@@ -644,7 +649,7 @@ RegValue QueryValue(HKEY hKey, const std::wstring& valueName)
 
 void SetValue(HKEY hKey, const std::wstring& valueName, const RegValue& value)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
+    _ASSERTE(hKey != nullptr);
 
     switch (value.GetType())
     {
@@ -662,24 +667,24 @@ void SetValue(HKEY hKey, const std::wstring& valueName, const RegValue& value)
 
 void DeleteValue(HKEY hKey, const std::wstring& valueName)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
+    _ASSERTE(hKey != nullptr);
 
     LONG result = ::RegDeleteValue(hKey, valueName.c_str());
     if (result != ERROR_SUCCESS)
     {
-        throw RegException("RegDeleteValue() failed.", result);
+        throw RegException(L"RegDeleteValue() failed.", result);
     }
 }
 
 
 void DeleteKey(HKEY hKey, const std::wstring& subKey, REGSAM view)
 {
-    GD_WINREG_ASSERT(hKey != nullptr);
+    _ASSERTE(hKey != nullptr);
 
     LONG result = ::RegDeleteKeyEx(hKey, subKey.c_str(), view, 0);
     if (result != ERROR_SUCCESS)
     {
-        throw RegException("RegDeleteKeyEx() failed.", result);
+        throw RegException(L"RegDeleteKeyEx() failed.", result);
     }
 }
 
@@ -732,7 +737,7 @@ void LoadKey(HKEY hKey, const std::wstring& subKey, const std::wstring& filename
     LONG result = ::RegLoadKey(hKey, subKey.c_str(), filename.c_str());
     if (result != ERROR_SUCCESS)
     {
-        throw RegException("RegLoadKey failed.", result);
+        throw RegException(L"RegLoadKey failed.", result);
     }
 }
 
@@ -742,7 +747,7 @@ void SaveKey(HKEY hKey, const std::wstring& filename, LPSECURITY_ATTRIBUTES secu
     LONG result = ::RegSaveKey(hKey, filename.c_str(), security);
     if (result != ERROR_SUCCESS)
     {
-        throw RegException("RegSaveKey failed.", result);
+        throw RegException(L"RegSaveKey failed.", result);
     }
 }
 
@@ -753,7 +758,7 @@ RegKey ConnectRegistry(const std::wstring& machineName, HKEY hKey)
     LONG result = ::RegConnectRegistry(machineName.c_str(), hKey, &hKeyResult);
     if (result != ERROR_SUCCESS)
     {
-        throw RegException("RegConnectRegistry failed.", result);
+        throw RegException(L"RegConnectRegistry failed.", result);
     }
 
     return RegKey(hKeyResult);

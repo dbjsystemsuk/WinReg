@@ -26,102 +26,139 @@ void PrintRegValue(const winreg::RegValue& value);
 
 int main()
 {
-    wcout << "*** Testing WinReg -- by Giovanni Dicanio ***\n\n";
+    wcout << "*** Testing WinReg -- by Giovanni Dicanio & DBJDBJ ***\n\n";
 
-    const wstring testKeyName = L"SOFTWARE\\GioRegTests";
+    const wstring testKeyName = 
+		L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FolderDescriptions\\";
+	try {
+		//
+		// Create a test key and write some values into it
+		//
+#if 0
+		{
+			wcout << L"Creating some test key and writing some values into it...\n";
 
-    //
-    // Create a test key and write some values into it
-    //
-    {
-        wcout << L"Creating some test key and writing some values into it...\n";
+			winreg::RegKey key = winreg::CreateKey(HKEY_CURRENT_USER, testKeyName);
 
-        winreg::RegKey key = winreg::CreateKey(HKEY_CURRENT_USER, testKeyName);
+			winreg::RegValue v(REG_DWORD);
+			v.Dword() = 0x64;
+			SetValue(key.Get(), L"TestValue_DWORD", v);
 
-        winreg::RegValue v(REG_DWORD);
-        v.Dword() = 0x64;
-        SetValue(key.Get(), L"TestValue_DWORD", v);
+			v.Reset(REG_SZ);
+			v.String() = L"Hello World";
+			SetValue(key.Get(), L"TestValue_SZ", v);
 
-        v.Reset(REG_SZ);
-        v.String() = L"Hello World";
-        SetValue(key.Get(), L"TestValue_SZ", v);
+			v.Reset(REG_EXPAND_SZ);
+			v.ExpandString() = L"%WinDir%";
+			SetValue(key.Get(), L"TestValue_EXPAND_SZ", v);
 
-        v.Reset(REG_EXPAND_SZ);
-        v.ExpandString() = L"%WinDir%";
-        SetValue(key.Get(), L"TestValue_EXPAND_SZ", v);
+			v.Reset(REG_MULTI_SZ);
+			v.MultiString().push_back(L"Ciao");
+			v.MultiString().push_back(L"Hi");
+			v.MultiString().push_back(L"Connie");
+			SetValue(key.Get(), L"TestValue_MULTI_SZ", v);
 
-        v.Reset(REG_MULTI_SZ);
-        v.MultiString().push_back(L"Ciao");
-        v.MultiString().push_back(L"Hi");
-        v.MultiString().push_back(L"Connie");
-        SetValue(key.Get(), L"TestValue_MULTI_SZ", v);
+			v.Reset(REG_BINARY);
+			v.Binary().push_back(0x22);
+			v.Binary().push_back(0x33);
+			v.Binary().push_back(0x44);
+			SetValue(key.Get(), L"TestValue_BINARY", v);
 
-        v.Reset(REG_BINARY);
-        v.Binary().push_back(0x22);
-        v.Binary().push_back(0x33);
-        v.Binary().push_back(0x44);
-        SetValue(key.Get(), L"TestValue_BINARY", v);
+			// Key automatically closed
+		}
+#endif
 
-        // Key automatically closed
-    }
+		//
+		// Enum Sub Keys
+		//
+#if 1
+		{
+			wcout << L"\nEnumerating values:\n";
 
+			// KEY_READ is default access req. and this is bad to hide
+			auto key = winreg::OpenKey(HKEY_LOCAL_MACHINE, testKeyName);
 
-    //
-    // Enum Values
-    //
-    {
-        wcout << L"\nEnumerating values:\n";
+			const vector<wstring> subNames = winreg::EnumerateSubKeyNames(key.Handle());
 
-        winreg::RegKey key = winreg::OpenKey(HKEY_CURRENT_USER, testKeyName, KEY_READ);
+			for (const auto& subName : subNames)
+			{
+				winreg::RegKey subKey = winreg::OpenKey(key.Handle(), subName);
+				wcout << subName << L" is of type: KEY \n";
 
-        const vector<wstring> valueNames = winreg::EnumerateValueNames(key.Get());
+				// PrintRegValue(value);
+				wcout << "-----------------------------------------------------------------\n";
+			}
+		}
+#endif
 
-        for (const auto& valueName : valueNames)
-        {
-            winreg::RegValue value = winreg::QueryValue(key.Get(), valueName);
-            wcout << valueName
-                  << L" is of type: " << winreg::ValueTypeIdToString(value.GetType()) 
-                  << L"\n";       
-        
-            PrintRegValue(value);
-            wcout << "-----------------------------------------------------------------\n";
-        }
-    }
+		//
+		// Enum Values
+		//
+#if 0
+		{
+			wcout << L"\nEnumerating values:\n";
 
+			auto key = winreg::OpenKey(HKEY_LOCAL_MACHINE, testKeyName, KEY_READ);
 
-    //
-    // Test Delete
-    //
-    {
-        wcout << L"\nDeleting a value...\n";
-        
-        winreg::RegKey key = winreg::OpenKey(HKEY_CURRENT_USER, testKeyName, KEY_WRITE|KEY_READ);
+			const vector<wstring> valueNames = winreg::EnumerateValueNames(key.Get());
 
-        // Delete a value
-        const wstring valueName = L"TestValue_DWORD";
-        winreg::DeleteValue(key.Get(), valueName);
-    
-        // Try accessing a non-existent value
-        try
-        {
-            wcout << "Trying accessing value just deleted...\n";
-            winreg::RegValue value = winreg::QueryValue(key.Get(), valueName);
-        }
-        catch (const winreg::RegException& ex)
-        {
-            wcout << L"winreg::RegException correctly caught.\n";
-            wcout << L"Error code: " << ex.ErrorCode() << L'\n';
-            // Error code should be 2: ERROR_FILE_NOT_FOUND
-            if (ex.ErrorCode() == ERROR_FILE_NOT_FOUND)
-            {
-                wcout << L"All right, I expected ERROR_FILE_NOT_FOUND (== 2).\n\n";
-            }
-        }
-        key.Close();
+			for (const auto& valueName : valueNames)
+			{
+				winreg::RegValue value = winreg::QueryValue(key.Get(), valueName);
+				wcout << valueName
+					<< L" is of type: " << winreg::ValueTypeIdToString(value.GetType())
+					<< L"\n";
 
-        // Delete the whole key
-        winreg::DeleteKey(HKEY_CURRENT_USER, testKeyName);
-    }
+				PrintRegValue(value);
+				wcout << "-----------------------------------------------------------------\n";
+			}
+		}
+#endif
+
+		//
+		// Test Delete
+		//
+#if 0
+		{
+			wcout << L"\nDeleting a value...\n";
+
+			winreg::RegKey key = winreg::OpenKey(HKEY_CURRENT_USER, testKeyName, KEY_WRITE | KEY_READ);
+
+			// Delete a value
+			const wstring valueName = L"TestValue_DWORD";
+			winreg::DeleteValue(key.Get(), valueName);
+
+			// Try accessing a non-existent value
+			try
+			{
+				wcout << "Trying accessing value just deleted...\n";
+				winreg::RegValue value = winreg::QueryValue(key.Get(), valueName);
+			}
+			catch (const winreg::RegException& ex)
+			{
+				wcout << L"winreg::RegException correctly caught.\n";
+				wcout << L"Error code: " << ex.ErrorCode() << L'\n';
+				// Error code should be 2: ERROR_FILE_NOT_FOUND
+				if (ex.ErrorCode() == ERROR_FILE_NOT_FOUND)
+				{
+					wcout << L"All right, I expected ERROR_FILE_NOT_FOUND (== 2).\n\n";
+				}
+			}
+			key.Close();
+
+			// Delete the whole key
+			winreg::DeleteKey(HKEY_CURRENT_USER, testKeyName);
+		}
+#endif
+	}
+	catch ( winreg::RegException & rx ) {
+		std::wcerr << L"winreg exception: " <<  rx.ErrorCode() << L" : " <<  rx.ErrorMessage() << std::endl ;
+	}
+	catch (... ) {
+		std::wcerr << L"Unknown exception: " << std::endl;
+	}
+	// eof main
+	return 0;
 }
 
 
